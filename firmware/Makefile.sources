@@ -1,0 +1,15 @@
+# vim:ts=4
+
+include lib/mulabs-avr/src/Makefile.sources
+
+HEADERS += $(patsubst %,lib/mulabs-avr/src/%,$(MULABS_AVR_HEADERS))
+SOURCES += $(patsubst %,lib/mulabs-avr/src/%,$(MULABS_AVR_SOURCES))
+
+SOURCES += ldi-firmware.cc
+
+OBJECTS += $(call mkobjs, $(NODEP_SOURCES))
+OBJECTS += $(call mkobjs, $(SOURCES))
+
+TARGETS += $(distdir)/ldi-firmware.hex
+LINKEDS += $(distdir)/ldi-firmware.elf
+

@@ -1,0 +1,228 @@
+# vim:ts=4
+
+.PHONY: first all dep help clean distclean release doc check
+.SUFFIXES:
+
+ifeq ($(PROFILING),1)
+PROFILING_s = -profiling
+else
+PROFILING_s =
+endif
+
+ifeq ($(DEBUG),1)
+DEBUG_s = -debug
+else
+DEBUG_s =
+endif
+
+ifneq ($(PROFILE),)
+PROFILE_s = -$(PROFILE)
+else
+PROFILE_s =
+endif
+
+#### Functions ####
+
+dist			= $(ARCH)$(PROFILING_s)$(DEBUG_s)$(PROFILE_s)
+distdir			= build/$(dist)
+depsdir			= $(distdir)/deps
+objsdir			= $(distdir)/objects
+mocsdir			= $(distdir)/mocs
+reldir			= release/$(dist)
+relname			= release-$(VERSION)-$(dist)
+reldir_pkg		= $(reldir)/$(relname)
+prepdir			= $(shell mkdir -p "$$(dirname "$(strip $(1))")")
+mkmocs			= $(foreach file, $(1), $(mocsdir)/$(dir $(file))$(shell basename '$(file)' $(suffix $(file))).moc.cc)
+mkdeps			= $(foreach file, $(1), $(depsdir)/$(dir $(file))$(shell basename '$(file)').dep)
+mkobjs			= $(foreach file, $(1), $(objsdir)/$(dir $(file))$(shell basename '$(file)').o)
+mkmocobjs		= $(foreach file, $(1), $(dir $(file))$(shell basename '$(file)').o)
+
+ifeq ($(shell tput colors), -1)
+	_s = ""
+	_l = ""
+else
+	_s = "[1;34m"
+	_l = "[0m"
+endif
+
+#### Commit ID support ####
+
+ifneq ($(VERSION_FILE),)
+GIT_AVAILABLE	= $(shell which git 1>/dev/null && echo OK)
+
+ifeq ($(GIT_AVAILABLE),OK)
+COMMIT			= $(shell cat .commit 2>/dev/null)
+COMMIT_REAL		= $(shell git rev-parse HEAD 2>/dev/null)
+BRANCH			= $(shell cat .branch 2>/dev/null)
+BRANCH_REAL		= $(shell git branch --no-color 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+
+ifeq ($(COMMIT),$(COMMIT_REAL))
+COMMIT_FILE		=
+else
+COMMIT_FILE		= .commit
+endif
+
+ifeq ($(BRANCH),$(BRANCH_REAL))
+BRANCH_FILE		=
+else
+BRANCH_FILE		= .branch
+endif
+
+.PHONY: .commit .branch
+
+.commit:
+	@if [ "$(COMMIT)" != "$(COMMIT_REAL)" ]; then \
+		echo " Saving commit ID"; \
+		echo "$(COMMIT_REAL)" >$@; \
+	 fi
+
+.branch:
+	@if [ "$(BRANCH)" != "$(BRANCH_REAL)" ]; then \
+		echo " Saving branch name"; \
+		echo "$(BRANCH_REAL)" >$@; \
+	 fi
+
+$(VERSION_FILE): $(COMMIT_FILE) $(BRANCH_FILE)
+	@echo "// Do not edit - automatically generated." >$@
+	@echo "namespace Xefis { namespace Version {" >>$@
+	@echo "	const char* commit = \"$(COMMIT_REAL)\";" >>$@
+	@echo "	const char* branch = \"$(BRANCH_REAL)\";" >>$@
+	@echo "	const char* version = \"$(VERSION)\";" >>$@
+	@echo "} }" >>$@
+
+$(call mkobjs, $(VERSION_FILE)): $(VERSION_FILE)
+endif # GIT_AVAILABLE == OK
+endif # VERSION_FILE != ""
+
+#### Rules ####
+
+DEPFILES	= $(call mkdeps, $(subst $(VERSION_FILE),,$(SOURCES)))
+MAINDEPFILE	= $(depsdir)/Makefile.dep
+
+all: $(MAINDEPFILE) $(DEPFILES) $(TARGETS)
+
+dep: $(DEPFILES)
+
+help:
+	@echo 'Available targets:'
+	@echo '  all        Compiles program.'
+	@echo '  dep        Generates dependencies.'
+	@echo '  clean      Cleans source tree and dep files'
+	@echo '  distclean  Cleans build directory.'
+	@echo '  release    Creates release.'
+	@echo '  help       Shows this help.'
+
+clean:
+	@rm -f $(MOCSRCS)
+	@rm -f $(OBJECTS)
+	@rm -f $(MOCOBJS)
+	@rm -f $(DEPFILES)
+
+distclean:
+	@rm -rf build
+
+release:
+	@echo Unimplemented
+
+doc:
+	@cd doc && doxygen doxygen.conf
+
+check:
+	cppcheck --force --std=c++14 --language=c++ --inconclusive --enable=all --template "{id}:{file}:{line} ({severity}): {message}" --suppressions-list=cppcheck.suppressions \
+		lib $(HEADERS) 2> check.log
+
+$(MAINDEPFILE): Makefile.sources $(DEPFILES)
+	$(call prepdir, $@)
+	@echo $(_s) "DEP MAIN" $(_l) $@
+	@rm -f $@
+	@echo "# DO NOT EDIT!!! (all changed will be lost!)" >> $@
+	@echo "# This file has been generated automatically by Makefile from source files." >> $@
+	@for file in $(DEPFILES); do \
+		cat "$$file" >> $@; \
+	 done;
+	@for file in $(MOCSRCS); do \
+		echo "$$(dirname "$$file")/$$(basename "$$file").o: $$file" >> $@; \
+	 done;
+
+$(depsdir)/%.cc.dep: %.cc %.h
+	$(call prepdir, $@)
+	@echo $(_s) "DEP CC  " $(_l) $@
+	$(DEPGEN) $(DEPFLAGS) -MM -MQ "$(objsdir)/$$(dirname "$<")/$$(basename "$<").o" $< > $@
+
+$(depsdir)/%.c.dep: %.c %.h
+	$(call prepdir, $@)
+	@echo $(_s) "DEP C   " $(_l) $@
+	$(DEPGEN) $(DEPFLAGS) -MM -MQ "$(objsdir)/$$(dirname "$<")/$$(basename "$<").o" $< > $@
+
+$(depsdir)/%.S.dep: %.S %.h
+	$(call prepdir, $@)
+	@echo $(_s) "DEP S   " $(_l) $@
+	$(DEPGEN) $(DEPFLAGS) -MM -MQ "$(objsdir)/$$(dirname "$<")/$$(basename "$<").o" $< > $@
+
+$(depsdir)/%.cc.dep: %.cc
+	$(call prepdir, $@)
+	@echo $(_s) "DEP CC  " $(_l) $@
+	$(DEPGEN) $(DEPFLAGS) -MM -MQ "$(objsdir)/$$(dirname "$<")/$$(basename "$<").o" $< > $@
+
+$(depsdir)/%.c.dep: %.c
+	$(call prepdir, $@)
+	@echo $(_s) "DEP C   " $(_l) $@
+	$(DEPGEN) $(DEPFLAGS) -MM -MQ "$(objsdir)/$$(dirname "$<")/$$(basename "$<").o" $< > $@
+
+$(depsdir)/%.S.dep: %.S
+	$(call prepdir, $@)
+	@echo $(_s) "DEP S   " $(_l) $@
+	$(DEPGEN) $(DEPFLAGS) -MM -MQ "$(objsdir)/$$(dirname "$<")/$$(basename "$<").o" $< > $@
+
+$(depsdir)/%.h.dep: %.h
+	$(call prepdir, $@)
+	@echo $(_s) "DEP     " $(_l) $@
+	$(DEPGEN) $(DEPFLAGS) -MM -MQ "$(objsdir)/$$(dirname "$<")/$$(basename "$<").o" $< > $@
+
+$(depsdir)/%.moc.cc.dep: %.moc.cc
+	$(call prepdir, $@)
+	@echo $(_s) "DEP MOC " $(_l) $@
+	$(DEPGEN) $(DEPFLAGS) -MM -MQ "$$(dirname "$<")/$$(basename "$<").o" $< > $@
+
+%.cc.o:
+	$(call prepdir, $@)
+	@echo $(_s) "C++     " $(_l) $@
+	$(CXX) $(CXXFLAGS) $< -o $@
+
+%.c.o:
+	$(call prepdir, $@)
+	@echo $(_s) "C       " $(_l) $@
+	$(C) $(CFLAGS) $< -o $@
+
+%.S.o:
+	$(call prepdir, $@)
+	@echo $(_s) "AS      " $(_l) $@
+	$(AS) $(ASFLAGS) $< -o $@
+
+%.a:
+	$(call prepdir, $@)
+	@echo $(_s) "AR      " $(_l) $@
+	@rm -f $@
+	$(AR) cr $@ $^
+
+%.so:
+	$(call prepdir, $@)
+	@echo $(_s) "LD [M]  " $(_l) $@
+	$(SO) $(SOFLAGS) $^ -o $@
+
+$(mocsdir)/%.moc.cc: %.h
+	$(call prepdir, $@)
+	@echo $(_s) "MOC     " $(_l) $@
+	$(MOC) $< -o $@
+
+$(LINKEDS):
+	$(call prepdir, $@)
+	@echo $(_s) "LD      " $(_l) $@
+	$(LD) -o $@ $^ $(LDFLAGS)
+
+ifneq ($(DIST),)
+	include Makefile.dist.$(DIST)
+endif
+
+-include $(MAINDEPFILE)
+

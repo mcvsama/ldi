@@ -1,0 +1,9 @@
+Go to the lib directory and clone the following libs into it:
+
+$ cd lib
+$ git clone https://github.com/mcvsama/mulabs-avr.git
+
+Required system packages:
+	avr-gcc
+	avr-libc
+
