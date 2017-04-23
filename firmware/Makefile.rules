@@ -9,3 +9,6 @@ info: $(LINKEDS)
 	echo $(LINKEDS)
 	avr-size --format=avr --mcu=$(MCU) $(patsubst %.hex,%.elf,$<)
 
+upload:
+	./atxmega128-pdi-upload build/avr/ldi-firmware.hex
+

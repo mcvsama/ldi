@@ -35,7 +35,7 @@ TOOLCHAIN		:= /usr
 # TODO list all special vars used by Makefile.core
 
 DEFINES			+= -DMCU_TYPE=$(MCU) -DF_CPU=$(MCU_FREQUENCY)
-C_CXX_OPT_FLAGS	+= -finline -funroll-loops -fomit-frame-pointer -DQT_NO_DEBUG
+#C_CXX_OPT_FLAGS	+= -finline -funroll-loops -fomit-frame-pointer -DQT_NO_DEBUG
 LIBS			+=
 PKGCONFIGS		+=
 
@@ -48,7 +48,7 @@ CXXFLAGS		+= $(DEFINES) -O3 -mmcu=$(MCU) -Ilib -Ilib/mulabs-avr/src -Wall -I../s
 SO				:= $(CXX) -shared
 SOFLAGS			+=
 LD				:= $(TOOLCHAIN)/bin/avr-g++
-LDFLAGS			+= -L$(TOOLCHAIN)/lib -mmcu=$(MCU)
+LDFLAGS			+= -L$(TOOLCHAIN)/avr/lib -mmcu=$(MCU)
 AR				:= $(TOOLCHAIN)/bin/avr-ar
 ARFLAGS			+=
 DEPGEN			:= $(CXX)

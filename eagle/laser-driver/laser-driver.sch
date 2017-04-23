@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.5.0">
+<eagle version="7.7.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -19079,7 +19079,7 @@ Source: http://www.semiconductors.philips.com/acrobat_download/datasheets/74HC_H
 <part name="C28" library="rcl" deviceset="CPOL-EU" device="153CLV-0605" value="220µ"/>
 <part name="C29" library="rcl" deviceset="C-EU" device="C0603" value="100nF"/>
 <part name="GND29" library="supply1" deviceset="GND" device=""/>
-<part name="R20" library="pot" deviceset="TRIM_EU-" device="SM-42/43B" value="100k"/>
+<part name="R20" library="pot" deviceset="TRIM_EU-" device="SM-42/43B" value="5kΩ"/>
 <part name="GND30" library="supply1" deviceset="GND" device=""/>
 <part name="GND31" library="supply1" deviceset="GND" device=""/>
 <part name="P+12" library="supply1" deviceset="VCC" device=""/>
@@ -19109,6 +19109,8 @@ Source: http://www.semiconductors.philips.com/acrobat_download/datasheets/74HC_H
 <part name="GND19" library="supply1" deviceset="GND" device=""/>
 <part name="R24" library="pot" deviceset="TRIM_EU-" device="3223G" value="1kΩ"/>
 <part name="COMP" library="testpad" deviceset="TP" device="B1,27"/>
+<part name="R25" library="rcl" deviceset="R-EU_" device="R0603" value="10kΩ"/>
+<part name="R26" library="rcl" deviceset="R-EU_" device="R0603" value="10kΩ"/>
 </parts>
 <sheets>
 <sheet>
@@ -19133,8 +19135,7 @@ DATA12      17    18       DATA13
 DATA14      19    20       DATA15
 CLK RE      21    22       (OUT) PREFETCH (LOAD NEXT WORD)
 PWR0        23    24       !SYNC (RESET COUNTER)
-PWR1        25    26       LASER ENABLE
-</text>
+PWR1        25    26       LASER ENABLE</text>
 </plain>
 <instances>
 <instance part="C1" gate="G$1" x="322.58" y="58.42" smashed="yes">
@@ -19319,17 +19320,17 @@ PWR1        25    26       LASER ENABLE
 <attribute name="VALUE" x="34.544" y="96.901" size="1.778" layer="96"/>
 </instance>
 <instance part="GND29" gate="1" x="33.02" y="86.36" rot="MR0"/>
-<instance part="R20" gate="1" x="55.88" y="45.72" smashed="yes" rot="MR180">
-<attribute name="NAME" x="62.611" y="44.45" size="1.778" layer="95" rot="MR270"/>
-<attribute name="VALUE" x="59.69" y="44.45" size="1.778" layer="96" rot="MR270"/>
+<instance part="R20" gate="1" x="43.18" y="45.72" smashed="yes" rot="MR180">
+<attribute name="NAME" x="49.911" y="44.45" size="1.778" layer="95" rot="MR270"/>
+<attribute name="VALUE" x="46.99" y="44.45" size="1.778" layer="96" rot="MR270"/>
 </instance>
 <instance part="GND30" gate="1" x="78.74" y="30.48" rot="MR0"/>
-<instance part="GND31" gate="1" x="55.88" y="35.56" rot="MR0"/>
+<instance part="GND31" gate="1" x="43.18" y="35.56" rot="MR0"/>
 <instance part="P+12" gate="VCC" x="78.74" y="63.5" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="78.74" y="66.04" size="1.778" layer="96" rot="MR0"/>
 </instance>
-<instance part="GND32" gate="1" x="43.18" y="35.56" rot="MR0"/>
-<instance part="C31" gate="G$1" x="43.18" y="48.26"/>
+<instance part="GND32" gate="1" x="30.48" y="35.56" rot="MR0"/>
+<instance part="C31" gate="G$1" x="30.48" y="48.26"/>
 <instance part="C30" gate="G$1" x="254" y="177.8"/>
 <instance part="R21" gate="G$1" x="81.28" y="22.86" rot="R180"/>
 <instance part="TVS2" gate="G$1" x="360.68" y="60.96" rot="R90"/>
@@ -19375,6 +19376,8 @@ PWR1        25    26       LASER ENABLE
 <instance part="IC7" gate="P" x="284.48" y="175.26"/>
 <instance part="R24" gate="1" x="38.1" y="63.5" rot="MR90"/>
 <instance part="COMP" gate="G$1" x="66.04" y="15.24" rot="R180"/>
+<instance part="R25" gate="G$1" x="55.88" y="53.34" rot="R180"/>
+<instance part="R26" gate="G$1" x="55.88" y="45.72" rot="R180"/>
 </instances>
 <busses>
 <bus name="IN[0..15]">
@@ -19519,18 +19522,13 @@ PWR1        25    26       LASER ENABLE
 <junction x="17.78" y="182.88"/>
 </segment>
 <segment>
-<pinref part="P+12" gate="VCC" pin="VCC"/>
-<wire x1="43.18" y1="50.8" x2="43.18" y2="53.34" width="0.1524" layer="91"/>
-<pinref part="C31" gate="G$1" pin="1"/>
 <pinref part="U7" gate="G$1" pin="VCC+"/>
-<wire x1="43.18" y1="53.34" x2="55.88" y2="53.34" width="0.1524" layer="91"/>
-<wire x1="55.88" y1="53.34" x2="78.74" y2="53.34" width="0.1524" layer="91"/>
 <wire x1="78.74" y1="53.34" x2="78.74" y2="50.8" width="0.1524" layer="91"/>
+<pinref part="P+12" gate="VCC" pin="VCC"/>
 <wire x1="78.74" y1="60.96" x2="78.74" y2="53.34" width="0.1524" layer="91"/>
 <junction x="78.74" y="53.34"/>
-<pinref part="R20" gate="1" pin="A"/>
-<wire x1="55.88" y1="50.8" x2="55.88" y2="53.34" width="0.1524" layer="91"/>
-<junction x="55.88" y="53.34"/>
+<wire x1="60.96" y1="53.34" x2="78.74" y2="53.34" width="0.1524" layer="91"/>
+<pinref part="R25" gate="G$1" pin="1"/>
 </segment>
 <segment>
 <pinref part="P+11" gate="VCC" pin="VCC"/>
@@ -19814,7 +19812,7 @@ PWR1        25    26       LASER ENABLE
 <wire x1="33.02" y1="91.44" x2="33.02" y2="88.9" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<wire x1="43.18" y1="43.18" x2="43.18" y2="38.1" width="0.1524" layer="91"/>
+<wire x1="30.48" y1="43.18" x2="30.48" y2="38.1" width="0.1524" layer="91"/>
 <pinref part="GND32" gate="1" pin="GND"/>
 <pinref part="C31" gate="G$1" pin="2"/>
 </segment>
@@ -19841,7 +19839,7 @@ PWR1        25    26       LASER ENABLE
 <segment>
 <pinref part="R20" gate="1" pin="E"/>
 <pinref part="GND31" gate="1" pin="GND"/>
-<wire x1="55.88" y1="40.64" x2="55.88" y2="38.1" width="0.1524" layer="91"/>
+<wire x1="43.18" y1="40.64" x2="43.18" y2="38.1" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$6" class="0">
@@ -20462,7 +20460,6 @@ PWR1        25    26       LASER ENABLE
 </net>
 <net name="N$19" class="0">
 <segment>
-<pinref part="R20" gate="1" pin="S"/>
 <wire x1="66.04" y1="45.72" x2="60.96" y2="45.72" width="0.1524" layer="91"/>
 <junction x="66.04" y="45.72"/>
 <pinref part="R21" gate="G$1" pin="2"/>
@@ -20473,6 +20470,7 @@ PWR1        25    26       LASER ENABLE
 <pinref part="COMP" gate="G$1" pin="TP"/>
 <wire x1="66.04" y1="17.78" x2="66.04" y2="22.86" width="0.1524" layer="91"/>
 <junction x="66.04" y="22.86"/>
+<pinref part="R26" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="N$33" class="0">
@@ -20502,6 +20500,25 @@ PWR1        25    26       LASER ENABLE
 <segment>
 <pinref part="R14" gate="G$1" pin="2"/>
 <pinref part="R24" gate="1" pin="A"/>
+</segment>
+</net>
+<net name="N$37" class="0">
+<segment>
+<wire x1="30.48" y1="50.8" x2="30.48" y2="53.34" width="0.1524" layer="91"/>
+<pinref part="C31" gate="G$1" pin="1"/>
+<wire x1="30.48" y1="53.34" x2="43.18" y2="53.34" width="0.1524" layer="91"/>
+<wire x1="43.18" y1="53.34" x2="50.8" y2="53.34" width="0.1524" layer="91"/>
+<pinref part="R20" gate="1" pin="A"/>
+<wire x1="43.18" y1="50.8" x2="43.18" y2="53.34" width="0.1524" layer="91"/>
+<junction x="43.18" y="53.34"/>
+<pinref part="R25" gate="G$1" pin="2"/>
+</segment>
+</net>
+<net name="N$38" class="0">
+<segment>
+<pinref part="R20" gate="1" pin="S"/>
+<pinref part="R26" gate="G$1" pin="2"/>
+<wire x1="50.8" y1="45.72" x2="48.26" y2="45.72" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
